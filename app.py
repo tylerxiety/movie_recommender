@@ -26,7 +26,10 @@ def index():
     movie_indices = recommender.get_recommendations(top_k=10)
     recommended_movies = recommender.get_movie_details(movie_indices)
     
-    return render_template('index.html', movies=recommended_movies)
+    # Get user ratings for initial state
+    user_ratings = recommender.user_ratings_df.to_dict('records')
+    
+    return render_template('index.html', movies=recommended_movies, user_ratings=user_ratings)
 
 @app.route('/rate', methods=['POST'])
 def rate_movie():
@@ -45,9 +48,13 @@ def rate_movie():
     movie_indices = recommender.get_recommendations(top_k=10)
     recommended_movies = recommender.get_movie_details(movie_indices)
     
+    # Get all user ratings
+    user_ratings = recommender.user_ratings_df.to_dict('records')
+    
     return jsonify({
         'success': success,
-        'movies': recommended_movies
+        'movies': recommended_movies,
+        'user_ratings': user_ratings
     })
 
 @app.route('/get_recommendations')
@@ -56,8 +63,12 @@ def get_recommendations():
     movie_indices = recommender.get_recommendations(top_k=10)
     recommended_movies = recommender.get_movie_details(movie_indices)
     
+    # Get all user ratings
+    user_ratings = recommender.user_ratings_df.to_dict('records')
+    
     return jsonify({
-        'movies': recommended_movies
+        'movies': recommended_movies,
+        'user_ratings': user_ratings
     })
 
 @app.route('/search', methods=['GET'])

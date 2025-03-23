@@ -34,3 +34,10 @@ data/
 # OS specific files
 .DS_Store
 Thumbs.db 
+
+# archive
+archive/
+
+# playground
+playground/
+

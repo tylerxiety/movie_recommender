@@ -1,6 +1,37 @@
 $(document).ready(function() {
+    // Get initial user ratings from window scope (set in the template)
+    const userRatings = window.initialUserRatings || [];
+    
     // Initialize star ratings
     initializeStarRatings();
+    
+    // Apply initial ratings to movie cards
+    applyInitialRatings(userRatings);
+
+    // Function to apply initial ratings to movie cards
+    function applyInitialRatings(userRatings) {
+        if (!userRatings || userRatings.length === 0) return;
+        
+        // For each movie card on the page
+        $('.movie-card').each(function() {
+            const movieId = $(this).find('.star-rating').data('movie-id');
+            // Find if this movie has a rating
+            const ratedMovie = userRatings.find(rating => rating.imdb_id === movieId);
+            
+            if (ratedMovie && ratedMovie.rating) {
+                const rating = parseInt(ratedMovie.rating);
+                const stars = $(this).find('.star-rating .star');
+                
+                // Mark appropriate stars as active
+                stars.each(function(index) {
+                    if (index < rating) {
+                        $(this).addClass('active');
+                        $(this).find('i').removeClass('far').addClass('fas');
+                    }
+                });
+            }
+        });
+    }
 
     // Function to initialize star rating interactions
     function initializeStarRatings() {
@@ -82,7 +113,7 @@ $(document).ready(function() {
                 
                 // If successful, update recommendations
                 if (response.success) {
-                    updateMovies(response.movies);
+                    updateMovies(response.movies, response.user_ratings);
                 }
             },
             error: function(error) {
@@ -94,13 +125,13 @@ $(document).ready(function() {
     }
 
     // Function to update movies in the UI
-    function updateMovies(movies) {
+    function updateMovies(movies, userRatings) {
         const container = $('#movies-container');
         container.empty();
         
         // Add new movies
         movies.forEach(function(movie) {
-            const movieHtml = createMovieCard(movie);
+            const movieHtml = createMovieCard(movie, userRatings);
             container.append(movieHtml);
         });
         
@@ -109,7 +140,7 @@ $(document).ready(function() {
     }
 
     // Function to create a movie card
-    function createMovieCard(movie) {
+    function createMovieCard(movie, userRatings) {
         // Extract year from date
         let year = '';
         if (movie.DatePublished) {
@@ -129,6 +160,24 @@ $(document).ready(function() {
         let description = movie.Description || '';
         if (description.length > 200) {
             description = description.substring(0, 200) + '...';
+        }
+        
+        // Check if this movie has been rated
+        let userRating = 0;
+        if (userRatings && userRatings.length > 0) {
+            const ratedMovie = userRatings.find(rating => rating.imdb_id === movie.id);
+            if (ratedMovie) {
+                userRating = parseInt(ratedMovie.rating);
+            }
+        }
+        
+        // Build star rating HTML with active stars for previously rated movies
+        let starRatingHtml = '';
+        for (let i = 1; i <= 10; i++) {
+            const isActive = i <= userRating;
+            const starClass = isActive ? 'active' : '';
+            const iconClass = isActive ? 'fas' : 'far';
+            starRatingHtml += `<span class="star ${starClass}" data-rating="${i}"><i class="${iconClass} fa-star"></i></span>`;
         }
         
         // Build HTML for the movie card
@@ -158,16 +207,7 @@ $(document).ready(function() {
                                 <div class="rating-container">
                                     <p><strong>Rate this movie:</strong></p>
                                     <div class="star-rating" data-movie-id="${movie.id}" data-movie-title="${movie.Name}" data-movie-year="${year}">
-                                        <span class="star" data-rating="1"><i class="far fa-star"></i></span>
-                                        <span class="star" data-rating="2"><i class="far fa-star"></i></span>
-                                        <span class="star" data-rating="3"><i class="far fa-star"></i></span>
-                                        <span class="star" data-rating="4"><i class="far fa-star"></i></span>
-                                        <span class="star" data-rating="5"><i class="far fa-star"></i></span>
-                                        <span class="star" data-rating="6"><i class="far fa-star"></i></span>
-                                        <span class="star" data-rating="7"><i class="far fa-star"></i></span>
-                                        <span class="star" data-rating="8"><i class="far fa-star"></i></span>
-                                        <span class="star" data-rating="9"><i class="far fa-star"></i></span>
-                                        <span class="star" data-rating="10"><i class="far fa-star"></i></span>
+                                        ${starRatingHtml}
                                     </div>
                                 </div>
                             </div>

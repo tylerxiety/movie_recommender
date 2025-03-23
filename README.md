@@ -22,10 +22,7 @@ A Flask-based movie recommender system that suggests movies similar to your high
 ```
 movie_recommender/
 ├── app.py                 # Main Flask application
-├── app_simple.py          # Simplified Flask app
-├── minimal_app.py         # Minimal Flask app (currently working version)
 ├── model.py               # Main recommendation engine
-├── model_simple.py        # Simplified recommendation engine
 ├── data/                  # Data files
 │   ├── movies_dataset_48k.csv
 │   └── my_movie_ratings.csv
@@ -61,13 +58,30 @@ movie_recommender/
    conda install -c pytorch pytorch
    pip install transformers
    ```
+3. Precompute Embeddings (one-time setup):
+   ```
+   python precompute_embeddings.py
+   ```
+   This will process the entire dataset and save the embeddings to the `models/` directory.
 
-3. Run the minimal application (currently working version):
+4. Run the App (uses precomputed embeddings by default):
    ```
    python app.py
    ```
 
-4. Open your browser and navigate to: http://127.0.0.1:5001
+   4.1. Command-line Options
+
+   * To force recomputation of embeddings at startup:
+      ```
+      python app.py --no-precomputed
+      ```
+
+   * To specify a different port:
+      ```
+      python app.py --port 5002
+      ```
+
+5. Open your browser and navigate to: http://127.0.0.1:5001
 
 ## Future Improvements
 
@@ -87,25 +101,4 @@ This project is for educational purposes only.
 
 The system has been improved to separate the embedding computation process from application startup, making the app start faster:
 
-1. **Precompute Embeddings** (one-time setup):
-   ```
-   python precompute_embeddings.py
-   ```
-   This will process the entire dataset and save the embeddings to the `models/` directory.
 
-2. **Run the App** (uses precomputed embeddings by default):
-   ```
-   python app.py
-   ```
-
-3. **Command-line Options**:
-   - To force recomputation of embeddings at startup:
-     ```
-     python app.py --no-precomputed
-     ```
-   - To specify a different port:
-     ```
-     python app.py --port 5002
-     ```
-
-This separation of concerns makes the application more efficient, as it doesn't need to load the transformer model on every startup when using precomputed embeddings. 
