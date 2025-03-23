@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Recommender</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">Movie Recommender</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <form class="d-flex ms-auto" id="search-form">
+                    <input class="form-control me-2" type="search" id="search-input" placeholder="Search movies..." aria-label="Search">
+                    <button class="btn btn-outline-light" type="submit">Search</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1 class="text-center mb-4" id="page-title">Your Movie Recommendations</h1>
+        <p class="text-center mb-4" id="page-description">Based on your highly rated movies, here are some movies you might enjoy!</p>
+
+        <div class="row" id="movies-container">
+            {% for movie in movies %}
+            <div class="col-md-6 mb-4 movie-card">
+                <div class="card h-100">
+                    <div class="row g-0">
+                        <div class="col-md-4">
+                            <img src="{{ movie.PosterLink }}" class="img-fluid rounded-start movie-poster" alt="{{ movie.Name }}">
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ movie.Name }}</h5>
+                                <p class="card-text">
+                                    <small class="text-muted">
+                                        {% if movie.DatePublished %}
+                                            {{ movie.DatePublished.split('-')[0] }}
+                                        {% endif %}
+                                        {% if movie.Director %}
+                                            &bull; {{ movie.Director }}
+                                        {% endif %}
+                                    </small>
+                                </p>
+                                <p class="card-text genres">
+                                    {% if movie.Genres %}
+                                        {% for genre in movie.Genres.split(',') %}
+                                            <span class="badge bg-primary">{{ genre }}</span>
+                                        {% endfor %}
+                                    {% endif %}
+                                </p>
+                                <p class="card-text cast">
+                                    {% if movie.Actors %}
+                                        <strong>Cast:</strong> {{ movie.Actors }}
+                                    {% endif %}
+                                </p>
+                                <p class="card-text description">{{ movie.Description[:200] }}{% if movie.Description|length > 200 %}...{% endif %}</p>
+                                <div class="rating-container">
+                                    <p><strong>Rate this movie:</strong></p>
+                                    <div class="star-rating" data-movie-id="{{ movie.id }}" data-movie-title="{{ movie.Name }}" data-movie-year="{% if movie.DatePublished %}{{ movie.DatePublished.split('-')[0] }}{% endif %}">
+                                        <span class="star" data-rating="1"><i class="far fa-star"></i></span>
+                                        <span class="star" data-rating="2"><i class="far fa-star"></i></span>
+                                        <span class="star" data-rating="3"><i class="far fa-star"></i></span>
+                                        <span class="star" data-rating="4"><i class="far fa-star"></i></span>
+                                        <span class="star" data-rating="5"><i class="far fa-star"></i></span>
+                                        <span class="star" data-rating="6"><i class="far fa-star"></i></span>
+                                        <span class="star" data-rating="7"><i class="far fa-star"></i></span>
+                                        <span class="star" data-rating="8"><i class="far fa-star"></i></span>
+                                        <span class="star" data-rating="9"><i class="far fa-star"></i></span>
+                                        <span class="star" data-rating="10"><i class="far fa-star"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html> 
